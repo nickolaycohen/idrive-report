@@ -11,3 +11,10 @@ PAYLOAD = {
         "host": "evsweb2652.idrive.com", 
         "Cookie": COOKIE
     }
+
+OUTPUT_DIR = './out/'
+DEVICE_LIST = 'deviceList.xml'
+FOLDER_LIST = 'folderList'
+FOLDER_PROPS = 'folderProps'
+
+DRIVE_ID_EXCLUDED = ('R01663474652000128789')
