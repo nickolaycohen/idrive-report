@@ -22,7 +22,7 @@ def getRoot(filename):
 def saveDevicesList():
     payload = constant.PAYLOAD
 
-    print('Will call iDrive for devices attached to the account ... ')
+    print(constant.status.CALLING_LIST_DEVICES+'')
     devicesList = requests.post('https://evsweb2652.idrive.com/evs/listDevices', headers=payload)
  
     xml = ET.fromstring(devicesList.content)
@@ -35,7 +35,7 @@ def saveDevicesList():
     b_xml = ET.tostring(xml)
 
     # saving the xml file
-    print('Generating device List ... ')
+    print()
 
     # need to create the out folder if not exist
     os.makedirs(constant.OUTPUT_DIR, exist_ok=True)
@@ -53,18 +53,17 @@ def saveFoldersList():
     for item in devicesRoot.findall('item'):
         device_id = item.get('device_id')
         nick_name = item.get('nick_name')
-        print('device_id:', device_id, '-', nick_name) 
         foldersData = {
             "device_id": device_id,
             "p": "/"
         }
 
         # get folders for this directory level
-        print('Will call iDrive for folders in this directore level ... ')
+        print(constant.status.CALLING_BROWSE_FOLDERS + device_id, '-', nick_name)
         foldersList = requests.post('https://evsweb2652.idrive.com/evs/browseFolder', headers=payload, data=foldersData)
 
         # saving the xml file 
-        print('Generating folder List/s/ ... ')
+        print(constant.status.GENERATING_FOLDER_LIST + device_id, '-', nick_name)
 
         filename = constant.OUTPUT_DIR + constant.FOLDER_LIST + '-' + device_id + '.xml'
         with open(filename, 'wb') as f: 
@@ -72,11 +71,12 @@ def saveFoldersList():
 
 def getProperties():
     payload = constant.PAYLOAD
-    devicesRoot = getRoot(constant.OUTPUT_DIR+constant.DEVICE_LIST)
+    devicesRoot = getRoot(constant.OUTPUT_DIR + constant.DEVICE_LIST)
     for item in devicesRoot.findall('item'):
         device_id = item.get('device_id')
         nick_name = item.get('nick_name')
 
+        # get folder list for each device_id
         filename = constant.OUTPUT_DIR+ constant.FOLDER_LIST + '-' + device_id + '.xml'
         foldersRoot = getRoot(filename)
         paths = list()
@@ -89,17 +89,16 @@ def getProperties():
                 "p": "//" + resname
             }
 
-            print('Will call iDrive for folder stats ... ')
+            print(constant.status.CALLING_FOLDER_STATS + nick_name + ' | ' + resname)
             folderProperties = requests.post('https://evsweb2652.idrive.com/evs/getProperties', headers=payload, data=foldersList)
             
             folderRoot = ET.fromstring(folderProperties.content)
             path = folderRoot.get('path')
             size = folderRoot.get('size')
             filecount = folderRoot.get('filecount')
-            if restype == '0':
+            if restype == constant.resType.DIRECTORY:
                 paths.append({'path': path, 'size': int(size), 'filecount': int(filecount)})
         paths = sorted(paths, key=itemgetter('size'),reverse=True)
-        print(*paths, sep = ", ") 
 
         # field names
         fields = ['path', 'size', 'filecount']
@@ -110,6 +109,7 @@ def getProperties():
         # writing to csv file
         with open(filename, 'w') as csvfile:
             # creating a csv dict writer object
+            print(constant.status.SAVING_FOLDER_STATS + nick_name)
             writer = csv.DictWriter(csvfile, fieldnames=fields)
         
             # writing headers (field names)
@@ -126,7 +126,7 @@ def main():
     # browse Folders for each device
     saveFoldersList()
 
-    # browse Folders for each device
+    # get stats for each folder for each device
     getProperties()
 
 if __name__ == "__main__": 
