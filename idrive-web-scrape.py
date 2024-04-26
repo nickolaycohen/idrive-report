@@ -10,20 +10,16 @@ def filterXML(root, filter):
             root.remove(item)
     return root 
 
-def getRoot(filename):
+def getRootElement(filename):
     # create element tree object 
     tree = ET.parse(filename) 
-
-    # get root element 
-    treeRoot = tree.getroot() 
-
-    return treeRoot
+    return tree.getroot() 
 
 def saveDevicesList():
-    payload = constant.PAYLOAD
+    headers = constant.HEADERS
 
-    print(constant.status.CALLING_LIST_DEVICES+'')
-    devicesList = requests.post('https://evsweb2652.idrive.com/evs/listDevices', headers=payload)
+    print(constant.statusMsg.CALLING_LIST_DEVICES+'')
+    devicesList = requests.post('https://evsweb2652.idrive.com/evs/listDevices', headers=headers)
  
     xml = ET.fromstring(devicesList.content)
     
@@ -39,16 +35,16 @@ def saveDevicesList():
 
     # need to create the out folder if not exist
     os.makedirs(constant.OUTPUT_DIR, exist_ok=True)
-    with open(constant.OUTPUT_DIR + constant.DEVICE_LIST, 'wb') as f: 
+    with open(constant.OUTPUT_DIR + constant.DEVICE_LIST_FILENAME, 'wb') as f: 
         f.write(b_xml) 
 
 def saveFoldersList():
     # TODO
-    # this is working only for top level folder
-    # maybe we need a parameter to be sent with the directoery level
-    payload = constant.PAYLOAD
+    # this is currently working only for first level folder
+    # Need a parameter to be sent with the directory depth
+    headers = constant.HEADERS
 
-    devicesRoot = getRoot(constant.OUTPUT_DIR+constant.DEVICE_LIST)
+    devicesRoot = getRootElement(constant.OUTPUT_DIR+constant.DEVICE_LIST_FILENAME)
 
     for item in devicesRoot.findall('item'):
         device_id = item.get('device_id')
@@ -59,57 +55,37 @@ def saveFoldersList():
         }
 
         # get folders for this directory level
-        print(constant.status.CALLING_BROWSE_FOLDERS + device_id, '-', nick_name)
-        foldersList = requests.post('https://evsweb2652.idrive.com/evs/browseFolder', headers=payload, data=foldersData)
+        print(constant.statusMsg.CALLING_BROWSE_FOLDERS + device_id, '-', nick_name)
+        foldersList = requests.post('https://evsweb2652.idrive.com/evs/browseFolder', headers=headers, data=foldersData)
 
         # saving the xml file 
-        print(constant.status.GENERATING_FOLDER_LIST + device_id, '-', nick_name)
-
-        filename = constant.OUTPUT_DIR + constant.FOLDER_LIST + '-' + device_id + '.xml'
+        print(constant.statusMsg.GENERATING_FOLDER_LIST + device_id, '-', nick_name)
+        filename = constant.OUTPUT_DIR + constant.FOLDER_LIST_FILENAME + '-' + device_id + '.xml'
         with open(filename, 'wb') as f: 
             f.write(foldersList.content) 
 
-def getProperties():
-    payload = constant.PAYLOAD
-    devicesRoot = getRoot(constant.OUTPUT_DIR + constant.DEVICE_LIST)
+def saveFolderProperties():
+    devicesRoot = getRootElement(constant.OUTPUT_DIR + constant.DEVICE_LIST_FILENAME)
     for item in devicesRoot.findall('item'):
         device_id = item.get('device_id')
         nick_name = item.get('nick_name')
 
         # get folder list for each device_id
-        filename = constant.OUTPUT_DIR+ constant.FOLDER_LIST + '-' + device_id + '.xml'
-        foldersRoot = getRoot(filename)
-        paths = list()
-        for res in foldersRoot.findall('item'):
-            resname = res.get('resname')
-            restype = res.get('restype')
-
-            foldersList = {
-                "device_id": device_id,
-                "p": "//" + resname
-            }
-
-            print(constant.status.CALLING_FOLDER_STATS + nick_name + ' | ' + resname)
-            folderProperties = requests.post('https://evsweb2652.idrive.com/evs/getProperties', headers=payload, data=foldersList)
-            
-            folderRoot = ET.fromstring(folderProperties.content)
-            path = folderRoot.get('path')
-            size = folderRoot.get('size')
-            filecount = folderRoot.get('filecount')
-            if restype == constant.resType.DIRECTORY:
-                paths.append({'path': path, 'size': int(size), 'filecount': int(filecount)})
+        filename = constant.OUTPUT_DIR+ constant.FOLDER_LIST_FILENAME + '-' + device_id + '.xml'
+        foldersRoot = getRootElement(filename)
+        paths = getFolderProperties(device_id, nick_name, foldersRoot)
         paths = sorted(paths, key=itemgetter('size'),reverse=True)
 
         # field names
         fields = ['path', 'size', 'filecount']
 
         # name of csv file
-        filename = constant.OUTPUT_DIR + constant.FOLDER_PROPS + '-' + nick_name + '.csv'
+        filename = constant.OUTPUT_DIR + constant.FOLDER_PROPS_FILENAME + '-' + nick_name + '.csv'
         
         # writing to csv file
         with open(filename, 'w') as csvfile:
             # creating a csv dict writer object
-            print(constant.status.SAVING_FOLDER_STATS + nick_name)
+            print(constant.statusMsg.SAVING_FOLDER_STATS + nick_name)
             writer = csv.DictWriter(csvfile, fieldnames=fields)
         
             # writing headers (field names)
@@ -117,7 +93,29 @@ def getProperties():
         
             # writing data rows
             writer.writerows(paths) 
-    return
+
+def getFolderProperties(device_id, nick_name, foldersRoot):
+    headers = constant.HEADERS
+    paths = list()
+    for res in foldersRoot.findall('item'):
+        resname = res.get('resname')
+        restype = res.get('restype')
+
+        foldersList = {
+                "device_id": device_id,
+                "p": "//" + resname
+            }
+
+        print(constant.statusMsg.CALLING_FOLDER_STATS + nick_name + ' | ' + resname)
+        folderProperties = requests.post('https://evsweb2652.idrive.com/evs/getProperties', headers=headers, data=foldersList)
+            
+        folderRoot = ET.fromstring(folderProperties.content)
+        path = folderRoot.get('path')
+        size = folderRoot.get('size')
+        filecount = folderRoot.get('filecount')
+        if restype == constant.resType.DIRECTORY:
+            paths.append({'path': path, 'size': int(size), 'filecount': int(filecount)})
+    return paths
 
 def main(): 
     # save DevicesList to an xml file 
@@ -126,8 +124,8 @@ def main():
     # browse Folders for each device
     saveFoldersList()
 
-    # get stats for each folder for each device
-    getProperties()
+    # get stats and save csv for each folder of each device
+    saveFolderProperties()
 
 if __name__ == "__main__": 
   
