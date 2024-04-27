@@ -64,6 +64,72 @@ def saveFoldersList():
         with open(filename, 'wb') as f: 
             f.write(foldersList.content) 
 
+def saveFoldersListSecondLevel():
+    # TODO
+    # this is currently working only for first level folder
+    # Need a parameter to be sent with the directory depth
+    headers = constant.HEADERS
+
+    devicesRoot = getRootElement(constant.OUTPUT_DIR+constant.DEVICE_LIST_FILENAME)
+
+    for item in devicesRoot.findall('item'):
+        device_id = item.get('device_id')
+        nick_name = item.get('nick_name')
+
+        folderRoot = getRootElement(constant.OUTPUT_DIR + constant.FOLDER_LIST_FILENAME + '-' + device_id + '.xml')
+        paths = list()
+        for item in folderRoot.findall('item'):
+            resname = item.get('resname')
+
+            foldersData = {
+                "device_id": device_id,
+                "p": "//" + item.get('resname')
+            }
+
+            # get folders for this directory level
+            # print(constant.statusMsg.CALLING_BROWSE_FOLDERS + device_id, '-', nick_name)
+            foldersList = requests.post('https://evsweb2652.idrive.com/evs/browseFolder', headers=headers, data=foldersData)
+
+            
+            folderlevelRoot = ET.fromstring(foldersList.content)
+
+            for folderItem in folderlevelRoot.findall('item'):
+                    folderItemResName = folderItem.get('resname')
+                    folderItemRestype = folderItem.get('restype')
+                    if folderItemRestype == constant.resType.DIRECTORY:
+                        foldersProps = {
+                            "device_id": device_id,
+                            "p": "//" + resname + '/' + folderItemResName
+                        }
+
+                        print(constant.statusMsg.CALLING_FOLDER_STATS + nick_name + ' | ' + resname + ' | ' + folderItemResName)
+                        folderProperties = requests.post('https://evsweb2652.idrive.com/evs/getProperties', headers=headers, data=foldersProps)
+                            
+                        folderPropertiesRoot = ET.fromstring(folderProperties.content)
+                        path = folderPropertiesRoot.get('path')
+                        size = folderPropertiesRoot.get('size')
+                        filecount = folderPropertiesRoot.get('filecount')
+                        paths.append({'path': path, 'size': int(size), 'filecount': int(filecount)})
+        paths = sorted(paths, key=itemgetter('size'),reverse=True)
+
+        # field names
+        fields = ['path', 'size', 'filecount']
+
+        # name of csv file
+        filename = constant.OUTPUT_DIR + constant.FOLDER_PROPS_FILENAME + '-' + nick_name + '-level2.csv'
+        
+        # writing to csv file
+        with open(filename, 'w') as csvfile:
+            # creating a csv dict writer object
+            print(constant.statusMsg.SAVING_FOLDER_STATS + nick_name)
+            writer = csv.DictWriter(csvfile, fieldnames=fields)
+        
+            # writing headers (field names)
+            writer.writeheader()
+        
+            # writing data rows
+            writer.writerows(paths) 
+
 def saveFolderProperties():
     devicesRoot = getRootElement(constant.OUTPUT_DIR + constant.DEVICE_LIST_FILENAME)
     for item in devicesRoot.findall('item'):
@@ -80,7 +146,7 @@ def saveFolderProperties():
         fields = ['path', 'size', 'filecount']
 
         # name of csv file
-        filename = constant.OUTPUT_DIR + constant.FOLDER_PROPS_FILENAME + '-' + nick_name + '.csv'
+        filename = constant.OUTPUT_DIR + constant.FOLDER_PROPS_FILENAME + '-' + nick_name + '-level1.csv'
         
         # writing to csv file
         with open(filename, 'w') as csvfile:
@@ -123,6 +189,9 @@ def main():
 
     # browse Folders for each device
     saveFoldersList()
+
+    # browse Folders for each device
+    saveFoldersListSecondLevel()
 
     # get stats and save csv for each folder of each device
     saveFolderProperties()
