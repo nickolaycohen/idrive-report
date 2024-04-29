@@ -34,4 +34,6 @@ class statusMsg(str, Enum):
     GENERATING_FOLDER_LIST = '*** GENERATING *** folder List/s/ for '
     SAVING_FOLDER_STATS = '*** SAVING *** folder stats for '
 
-MAX_LEVEL = 2
+MAX_DIRECTORY_LEVEL_TO_SCAN = 4
+
+MAX_DIRECTORY_COUNT_TO_RETURN_FOR_NEXT_LEVEL = 10
