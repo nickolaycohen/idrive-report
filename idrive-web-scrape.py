@@ -117,13 +117,9 @@ def getFolderProperties(headers, paths, device, p, folderPropertiesData):
 def main(): 
     # get DevicesList  
     devices = getDevicesList() 
-    if (sys.argv[1]):
-        device = devices[int(sys.argv[1])]        
-    else:
-        device = devices[0]
+    device = devices[int(sys.argv[1])] if sys.argv[1] else devices[0]
 
     paths = list()
-    # directory level
     currentLevel = 1
     while currentLevel < constant.MAX_DIRECTORY_LEVEL_TO_SCAN:
         # save Folder Properties for passed device index
