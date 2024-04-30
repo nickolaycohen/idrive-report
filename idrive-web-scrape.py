@@ -1,3 +1,4 @@
+import sys
 import xml.etree.ElementTree as ET 
 import constant, os
 import requests
@@ -47,6 +48,8 @@ def saveFoldersProperties(level, device, lowerLevelPaths):
             if restype == constant.resType.DIRECTORY:
                 folderPropertiesData = {"device_id": device_id, "p": p}
                 getFolderProperties(headers, lowerLevelPaths, device, p, folderPropertiesData)
+            lowerLevelPaths = sorted(lowerLevelPaths, key=itemgetter('size'),reverse=True)
+            lowerLevelPaths = lowerLevelPaths[:constant.MAX_DIRECTORY_COUNT_TO_RETURN_FOR_NEXT_LEVEL]
         print('*** paths:', lowerLevelPaths) 
     else:
         print('*** else - paths is passed - level is bigger than 1')
@@ -78,7 +81,7 @@ def saveFoldersProperties(level, device, lowerLevelPaths):
 
     # sort combined list
     higherLevelPaths = sorted(higherLevelPaths, key=itemgetter('size'),reverse=True)
-    higherLevelPaths =  higherLevelPaths[:constant.MAX_DIRECTORY_COUNT_TO_RETURN_FOR_NEXT_LEVEL]
+    higherLevelPaths = higherLevelPaths[:constant.MAX_DIRECTORY_COUNT_TO_RETURN_FOR_NEXT_LEVEL]
 
     # field names
     fields = ['device_id', 'path', 'size', 'filecount']
@@ -112,18 +115,20 @@ def getFolderProperties(headers, paths, device, p, folderPropertiesData):
     paths.append({'device_id': device_id, 'path': folderPropertiesRootpath, 'size': int(folderPropertiesRootsize), 'filecount': int(filecount)})
 
 def main(): 
-
-    # get DevicesList xml 
+    # get DevicesList  
     devices = getDevicesList() 
+    if (sys.argv[1]):
+        device = devices[int(sys.argv[1])]        
+    else:
+        device = devices[0]
 
     paths = list()
-    for device in devices:
-        # directory level
-        currentLevel = 1
-        while currentLevel < constant.MAX_DIRECTORY_LEVEL_TO_SCAN:
-        # save Folder Properties for each device
-            paths = saveFoldersProperties(currentLevel, device, paths)
-            currentLevel += 1
+    # directory level
+    currentLevel = 1
+    while currentLevel < constant.MAX_DIRECTORY_LEVEL_TO_SCAN:
+        # save Folder Properties for passed device index
+        paths = saveFoldersProperties(currentLevel, device, paths)
+        currentLevel += 1
 
 if __name__ == "__main__": 
   
