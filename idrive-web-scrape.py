@@ -55,10 +55,7 @@ def saveFoldersProperties(level, device, lowerLevelPaths):
         print('*** else - paths is passed - level is bigger than 1')
     for path in lowerLevelPaths:
         resname = path.get('path')
-        if not lowerLevelPaths:
-            p = "/"
-        else: 
-            p = "//" + resname
+        p = "/" if not lowerLevelPaths else "//" + resname
 
         foldersData = {"device_id": device_id, "p": p}
         # get folders for this directory level
