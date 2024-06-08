@@ -18,4 +18,8 @@ RUN:
 - get the token from the API call
 - enter the token in the constant.py file
 - program has 2 parameters: first is the device index - defults to 0 if not passed
-- run:> python3 idrive-web-scrape.py 2
+- run:> python3 idrive-web-scrape.py 2 
+
+RUN THE TAGGING SCRIPT:
+======================
+- > python3 idrive-tagging.py 2
