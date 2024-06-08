@@ -1,3 +1,4 @@
+import json
 import sys
 import xml.etree.ElementTree as ET 
 import constant, os
@@ -27,19 +28,19 @@ def getDevicesList():
                             "nick_name": item.get('nick_name')}) 
     return devices
 
-def saveFoldersProperties(level, device, lowerLevelPaths):
-    headers = constant.HEADERS
+def saveFoldersProperties(level, device, paths):
+    #headers = constant.HEADERS
 
-    higherLevelPaths = list()
+    rootPaths = list()
     lowerLevelPathsToRemove = list()
     device_id = device.get('device_id')
     nick_name = device.get('nick_name')
 
     if level == 1:
-        lowerLevelPaths = list()
-        foldersData = { "device_id": device_id, "p": "/"}
+        paths = list()
+        browseFolderData = { "device_id": device_id, "p": "/"}
         print(constant.statusMsg.CALLING_BROWSE_FOLDERS + device_id, '-', nick_name)
-        foldersList = requests.post('https://evsweb2652.idrive.com/evs/browseFolder', headers=headers, data=foldersData)
+        foldersList = requests.post('https://evsweb2652.idrive.com/evs/browseFolder', headers=constant.HEADERS, data=browseFolderData)
         folderRoot = getRootElement(foldersList.content)
         allItems = folderRoot.findall('item')
         for rootFolder in allItems:
@@ -47,19 +48,19 @@ def saveFoldersProperties(level, device, lowerLevelPaths):
             restype = rootFolder.get('restype')
             if restype == constant.resType.DIRECTORY:
                 folderPropertiesData = {"device_id": device_id, "p": p}
-                getFolderProperties(headers, lowerLevelPaths, device, p, folderPropertiesData)
-            lowerLevelPaths = sorted(lowerLevelPaths, key=itemgetter('size'),reverse=True)
-            lowerLevelPaths = lowerLevelPaths[:constant.MAX_DIRECTORY_COUNT_TO_RETURN_FOR_NEXT_LEVEL]
-        print('*** paths:', lowerLevelPaths) 
+                setFolderProperties(paths, device, p, folderPropertiesData)
+            paths = sorted(paths, key=itemgetter('size'),reverse=True)
+            paths = paths[:constant.MAX_DIRECTORY_COUNT_TO_RETURN_FOR_NEXT_LEVEL]
+        print('*** paths:', json.dumps(paths)) 
     else:
         print('*** else - paths is passed - level is bigger than 1')
-    for path in lowerLevelPaths:
+    for path in paths:
         resname = path.get('path')
-        p = "/" if not lowerLevelPaths else "//" + resname
+        p = "/" if not paths else "//" + resname
 
-        foldersData = {"device_id": device_id, "p": p}
+        browseFolderData = {"device_id": device_id, "p": p}
         # get folders for this directory level
-        foldersList = requests.post('https://evsweb2652.idrive.com/evs/browseFolder', headers=headers, data=foldersData)
+        foldersList = requests.post('https://evsweb2652.idrive.com/evs/browseFolder', headers=headers, data=browseFolderData)
         folderlevelRoot = ET.fromstring(foldersList.content)
         for folderItem in folderlevelRoot.findall('item'):
             folderItemResName = folderItem.get('resname')
@@ -67,18 +68,18 @@ def saveFoldersProperties(level, device, lowerLevelPaths):
             if restype == constant.resType.DIRECTORY:
                 p = resname + '/' + folderItemResName
                 folderPropertiesData = {"device_id": device_id, "p": p}
-                getFolderProperties(headers, higherLevelPaths, device, p, folderPropertiesData)
+                setFolderProperties(rootPaths, device, p, folderPropertiesData)
         lowerLevelPathsToRemove.append(path)
 
     # add lowerLevelPaths if not in higher level paths list
     for pathToRemove in lowerLevelPathsToRemove:
-        lowerLevelPaths.remove(pathToRemove)
-    for lowerLevelPath in lowerLevelPaths:
-        higherLevelPaths.append(lowerLevelPath)
+        paths.remove(pathToRemove)
+    for lowerLevelPath in paths:
+        rootPaths.append(lowerLevelPath)
 
     # sort combined list
-    higherLevelPaths = sorted(higherLevelPaths, key=itemgetter('size'),reverse=True)
-    higherLevelPaths = higherLevelPaths[:constant.MAX_DIRECTORY_COUNT_TO_RETURN_FOR_NEXT_LEVEL]
+    rootPaths = sorted(rootPaths, key=itemgetter('size'),reverse=True)
+    rootPaths = rootPaths[:constant.MAX_DIRECTORY_COUNT_TO_RETURN_FOR_NEXT_LEVEL]
 
     # field names
     fields = ['device_id', 'path', 'size', 'filecount']
@@ -96,20 +97,20 @@ def saveFoldersProperties(level, device, lowerLevelPaths):
         writer.writeheader()
     
         # writing data rows
-        writer.writerows(higherLevelPaths) 
+        writer.writerows(rootPaths) 
     # TODO - fix the return 
-    return higherLevelPaths
+    return rootPaths
 
-def getFolderProperties(headers, paths, device, p, folderPropertiesData):
+def setFolderProperties(paths, device, p, getPropertiesData):
     device_id = device.get('device_id')
     nick_name = device.get('nick_name')
     print(constant.statusMsg.CALLING_FOLDER_STATS + nick_name + ' | ' + p)
-    folderProperties = requests.post('https://evsweb2652.idrive.com/evs/getProperties', headers=headers, data=folderPropertiesData) 
-    folderPropertiesRoot = ET.fromstring(folderProperties.content)
-    folderPropertiesRootpath = folderPropertiesRoot.get('path')
-    folderPropertiesRootsize = folderPropertiesRoot.get('size')
-    filecount = folderPropertiesRoot.get('filecount')
-    paths.append({'device_id': device_id, 'path': folderPropertiesRootpath, 'size': int(folderPropertiesRootsize), 'filecount': int(filecount)})
+    folderProperties = requests.post('https://evsweb2652.idrive.com/evs/getProperties', headers=constant.HEADERS, data=getPropertiesData) 
+    root = ET.fromstring(folderProperties.content)
+    rootPath = root.get('path')
+    rootsize = root.get('size')
+    filecount = root.get('filecount')
+    paths.append({'device_id': device_id, 'path': rootPath, 'size': int(rootsize), 'filecount': int(filecount)})
 
 def main(): 
     # get DevicesList  
