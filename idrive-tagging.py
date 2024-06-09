@@ -153,19 +153,12 @@ def initDB():
                 size integer,
                 fileCount integer)
                 """)
-        # c.execute("""CREATE TABLE devicePaths (
-        #         deviceId text,  
-        #         pathId integer)
-        #         """)
         conn.commit()
         conn.close()
 
 def getRootElement(string):
     # create element tree object
     return ET.fromstring(string)  
-
-
-
 
 def main(): 
     # idrive-cleaner
@@ -189,4 +182,3 @@ if __name__ == "__main__":
   
     # calling main function 
     main() 
-
