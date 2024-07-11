@@ -22,4 +22,14 @@ RUN:
 
 RUN THE TAGGING SCRIPT:
 ======================
-- > python3 idrive-tagging.py 2
+- > python3 idrive-tagging.py D01692572940000295373 //Volumes
+- > python3 idrive-tagging.py D01692572940000295373 //Volumes/Extreme Pro
+python3 idrive-tagging.py D01692572940000295373 //Volumes/Extreme Pro/Photos Library
+python3 idrive-tagging.py D01692572940000295373 //Volumes/Extreme Pro/Photos Library/All-Media.photoslibrary/database
+
+python3 idrive-tagging.py D01692572940000295373 //Volumes/Extreme Pro/Photos Library/All-Media.photoslibrary/originals
+
+      "args": [
+        "D01692572940000295373",
+        "//Volumes/Extreme Pro/Photos Library/All-Media.photoslibrary"
+      ]
