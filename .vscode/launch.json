@@ -11,6 +11,8 @@
   //   "//Users/nickolaycohen/Pictures/Benny iPhone Download 05292017.photoslibrary",
   //   "Photos"]
 
+  // "args": ["D01563744743000489825", "//Videos", "MediaSource"]
+
   "version": "0.2.0",
   "configurations": [
     {
@@ -19,7 +21,7 @@
       "request": "launch",
       "program": "${file}",
       "console": "integratedTerminal",
-      "args": ["R01563807439000950037", "//Videos", "MediaSource"]
+      "args": ["D01563744743000489825", "//Users/nickolaycohen"]
     }
   ]
 }

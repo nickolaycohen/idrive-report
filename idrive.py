@@ -87,7 +87,7 @@ def setDevicePaths(rootpath, device):
                   
         needToUpdateSizeFilecount = not(lmdDB and datetime.strptime(lmd, "%Y/%m/%d %H:%M:%S") == datetime.strptime(lmdDB, "%Y-%m-%d %H:%M:%S"))
         if (needToUpdateSizeFilecount):
-            parentPath = getParentPath({"device_id": device_id, "name": resname})
+            parentPath = getParentPath({"device_id": device_id, "name": resname, "parentPath": rootpath})
             p = (parentPath if parentPath == '//' else parentPath + '/') + resname 
             restype = path.get('restype')
             if restype == constant.resType.DIRECTORY:

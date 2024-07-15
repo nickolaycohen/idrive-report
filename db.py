@@ -12,7 +12,7 @@ def setPath(path):
     rootpath = path.get('rootpath')
     conn = sqlite3.connect('assets.db')
     c = conn.cursor()
-    c.execute("SELECT datetime(replace(lmd, '/', '-')) as 'lmd' from paths where deviceId=:device_id and name=:name", {'device_id': device_id, 'name':name})
+    c.execute("SELECT datetime(replace(lmd, '/', '-')) as 'lmd' from paths where deviceId=:device_id and name=:name and parentPath=:parentPath", {'device_id': device_id, 'name':name, 'parentPath': rootpath})
     res = c.fetchall()
     if len(res) == 0:
         c.execute("INSERT INTO paths VALUES (null, :deviceId, :name, :type, :parentPath, :lmd, :size, :filecount, :drilledDown, :tag)", 
@@ -34,7 +34,7 @@ def setPathProperties(path):
     filecount = path.get('filecount')
     conn = sqlite3.connect('assets.db')
     c = conn.cursor()
-    c.execute("SELECT datetime(replace(lmd, '/', '-')) as 'lmd' from paths where deviceId=:device_id and name=:name", {'device_id': device_id, 'name': name, 'parentPath': parentPath})
+    c.execute("SELECT datetime(replace(lmd, '/', '-')) as 'lmd' from paths where deviceId=:device_id and name=:name and parentPath=:parentPath", {'device_id': device_id, 'name': name, 'parentPath': parentPath})
     res = c.fetchall()
     if len(res) == 1:
         c.execute("UPDATE paths SET size = :size, filecount = :filecount WHERE deviceId=:device_id and name=:name and parentPath=:parentPath", {'device_id': device_id, 'name': name, 'parentPath': parentPath, 'size': size, 'filecount': filecount})
@@ -100,7 +100,7 @@ def getParentPath(path):
     conn = sqlite3.connect('assets.db')
     c = conn.cursor()
 
-    c.execute("SELECT parentPath as 'parentPath' from paths where deviceId=:device_id and name=:name", {'device_id': device_id, 'name': name})
+    c.execute("SELECT parentPath as 'parentPath' from paths where deviceId=:device_id and name=:name and parentPath=:parentPath", {'device_id': device_id, 'name': name, 'parentPath': path.get('parentPath')})
     res = c.fetchall()
     conn.commit()
     conn.close() 

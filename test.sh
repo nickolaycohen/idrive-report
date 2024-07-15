@@ -31,6 +31,9 @@ python3 idrive-tagging.py D01563711761000105006	//Users/nickolaycohen/Pictures/P
 # NickolaysiMac
 python3 idrive-tagging.py D01563744743000489825 //Users
 python3 idrive-tagging.py D01563744743000489825	//Users/nickolaycohen
+python3 idrive-tagging.py D01563744743000489825	//Users/nickolaycohen/Pictures
+python3 idrive-tagging.py D01563744743000489825	//Users/nickolaycohen/Pictures/Pipeline
+python3 idrive-tagging.py D01563744743000489825	//Users/nickolaycohen/Pictures/LightRoom\ Catalog\ and\ Data
 python3 idrive-tagging.py D01563744743000489825	//Users/nickolaycohen/Movies
 python3 idrive-tagging.py D01563744743000489825	//Users/Shared
 python3 idrive-tagging.py D01563744743000489825 //Archives

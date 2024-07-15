@@ -301,5 +301,60 @@ from paths p
 join devices d on d.deviceId = p.deviceId
 order by p.size desc
 
-select *
+-- largest devices 
+select sum(size), 
+    case 
+        when sum(p.size) / 1000000000000 > 0
+        then cast(sum(p.size) / 1000000000000 as string) || ' TB'
+        when sum(p.size) / 1000000000 > 0
+        then cast(sum(p.size) / 1000000000 as string) || ' GB'
+        when sum(p.size) / 1000000 > 0
+        then cast(sum(p.size) / 1000000 as string) || ' MB'
+        when sum(p.size) / 1000 > 0
+        then cast(sum(p.size) / 1000 as string) || ' kB'
+        else cast(sum(p.size) as string) || ' B'
+    end as sizeB, 
+p.deviceId, d.nickName
 from paths p
+inner join devices d on d.deviceId = p.deviceId
+where parentPath = '//'
+group by p.deviceId
+order by 1 desc
+
+-- NickolaysiMac
+select 
+    case 
+        when p.size / 1000000000000 > 0
+        then cast(p.size / 1000000000000 as string) || ' TB'
+        when p.size / 1000000000 > 0
+        then cast(p.size / 1000000000 as string) || ' GB'
+        when p.size / 1000000 > 0
+        then cast(p.size / 1000000 as string) || ' MB'
+        when p.size / 1000 > 0
+        then cast(p.size / 1000 as string) || ' kB'
+        else cast(p.size as string) || ' B'
+    end as sizeB, 
+p.deviceId, d.nickName, p.parentPath, p.name
+from paths p
+inner join devices d on d.deviceId = p.deviceId
+where parentPath = '//' and p.deviceId = 'D01563744743000489825'
+order by p.size desc
+
+-- NickolaysiMac/Users
+select 
+    case 
+        when p.size / 1000000000000 > 0
+        then cast(p.size / 1000000000000 as string) || ' TB'
+        when p.size / 1000000000 > 0
+        then cast(p.size / 1000000000 as string) || ' GB'
+        when p.size / 1000000 > 0
+        then cast(p.size / 1000000 as string) || ' MB'
+        when p.size / 1000 > 0
+        then cast(p.size / 1000 as string) || ' kB'
+        else cast(p.size as string) || ' B'
+    end as sizeB, 
+p.deviceId, d.nickName, p.parentPath, p.name
+from paths p
+inner join devices d on d.deviceId = p.deviceId
+where parentPath = '//Users' and p.deviceId = 'D01563744743000489825'
+order by p.size desc
