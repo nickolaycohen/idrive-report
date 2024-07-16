@@ -268,7 +268,7 @@ select p.deviceId, d.nickName, p.parentPath, p.name, p.size,
 p.fileCount, p.tag
 from paths p
 join devices d on d.deviceId = p.deviceId
-where p.drilledDown = 0 and p.tag = ''
+--where p.drilledDown = 0 and p.tag = ''
 order by p.size desc
 
 -- tagged
@@ -334,13 +334,13 @@ select
         then cast(p.size / 1000 as string) || ' kB'
         else cast(p.size as string) || ' B'
     end as sizeB, 
-p.deviceId, d.nickName, p.parentPath, p.name
+d.nickName, p.parentPath, p.name, p.drilledDown
 from paths p
 inner join devices d on d.deviceId = p.deviceId
-where parentPath = '//' and p.deviceId = 'D01563744743000489825'
+where p.deviceId = 'D01563744743000489825' and drilledDown = 0 
 order by p.size desc
 
--- NickolaysiMac/Users
+-- NickolaysiMac/Users/nickolaycohen
 select 
     case 
         when p.size / 1000000000000 > 0
@@ -356,5 +356,25 @@ select
 p.deviceId, d.nickName, p.parentPath, p.name
 from paths p
 inner join devices d on d.deviceId = p.deviceId
-where parentPath = '//Users' and p.deviceId = 'D01563744743000489825'
+where parentPath = '//Users/nickolaycohen' and p.deviceId = 'D01563744743000489825'
+order by p.size desc
+
+
+
+select 
+    case 
+        when p.size / 1000000000000 > 0
+        then cast(p.size / 1000000000000 as string) || ' TB'
+        when p.size / 1000000000 > 0
+        then cast(p.size / 1000000000 as string) || ' GB'
+        when p.size / 1000000 > 0
+        then cast(p.size / 1000000 as string) || ' MB'
+        when p.size / 1000 > 0
+        then cast(p.size / 1000 as string) || ' kB'
+        else cast(p.size as string) || ' B'
+    end as sizeB, 
+p.deviceId, d.nickName, p.parentPath, p.name, p.size, p.fileCount
+from paths p
+inner join devices d on d.deviceId = p.deviceId
+where p.deviceId = 'D01563744743000489825'
 order by p.size desc
