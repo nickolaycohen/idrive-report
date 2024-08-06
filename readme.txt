@@ -12,6 +12,15 @@ https://www.python.org/downloads/release/python-3123/
 set VS default Interpreter to system Python:
     - Ex: /Library/Frameworks/Python.framework/Versions/3.12/bin/python3  
 
+- check if terraform is installed
+  >terraform -version
+
+- if not installed download binary from:
+  https://developer.hashicorp.com/terraform/install
+  https://releases.hashicorp.com/terraform/1.9.3/terraform_1.9.3_darwin_amd64.zip
+  > mv Downloads/terraform_1.9.3_darwin_amd64/terraform /Users/nickolaycohen/bin/
+  >terraform -version
+
 RUN:
 ===
 - login to iDrive account from web interface
