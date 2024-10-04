@@ -7,6 +7,8 @@ SETUP:
 =====
 - update system python3 to 3.12.3   
 https://www.python.org/downloads/release/python-3123/
+- install requests
+> pip3 install requests
 
 - for debugging with VS Code:
 set VS default Interpreter to system Python:
@@ -20,6 +22,13 @@ set VS default Interpreter to system Python:
   https://releases.hashicorp.com/terraform/1.9.3/terraform_1.9.3_darwin_amd64.zip
   > mv Downloads/terraform_1.9.3_darwin_amd64/terraform /Users/nickolaycohen/bin/
   >terraform -version
+
+- AWS CLI:
+  https://aws.amazon.com/cli/
+  
+- aws sso temporary credentials
+  https://www.youtube.com/watch?v=_KhrGFV_Npw&t=151s
+
 
 RUN:
 ===

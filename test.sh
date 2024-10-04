@@ -5,7 +5,6 @@ rm assets.db
 # Commenting for now
 python3 idrive-tagging.py
 
-
 # This is the iMac mini s3 bucket
 # NickolaysMacmini
 python3 idrive-tagging.py D01692572940000295373 //
@@ -59,4 +58,3 @@ python3 idrive-tagging.py R01563807439000950037 //Photos MediaSource
 
 # iPhone (3)
 python3 idrive-tagging.py R01607197738000636951 //Videos MediaSource
-

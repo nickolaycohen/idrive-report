@@ -31,16 +31,19 @@ def getDevices():
 
     print(constant.statusMsg.CALLING_LIST_DEVICES+'')
     session = retry_session(retries=5)
-    devicesList = session.post(url='https://evsweb2652.idrive.com/evs/listDevices', headers=headers)
- 
-    xml = ET.fromstring(devicesList.content)
-    
-    # need to filter iDrive Photos bucket before saving
-    for item in xml:
-        if not item.get('device_id') in constant.DRIVE_ID_EXCLUDED:
-            devices.append({"device_id": item.get('device_id'),
-                            "nick_name": item.get('nick_name')}) 
-    return devices
+    listDevicesResponse = session.post(url='https://evsweb2652.idrive.com/evs/listDevices', headers=headers)
+
+    if listDevicesResponse and listDevicesResponse.status_code == 200: 
+        xml = ET.fromstring(listDevicesResponse.content)
+        
+        # need to filter iDrive Photos bucket before saving
+        for item in xml:
+            if not item.get('device_id') in constant.DRIVE_ID_EXCLUDED:
+                devices.append({"device_id": item.get('device_id'),
+                                "nick_name": item.get('nick_name')}) 
+        return devices
+    else:
+        raise SystemExit('ERROR: Response code:', listDevicesResponse.status_code, listDevicesResponse.text)
 
 def getFolderProperties(device, p):
     device_id = device['device_id']
@@ -48,13 +51,17 @@ def getFolderProperties(device, p):
     print(constant.statusMsg.CALLING_FOLDER_STATS + nick_name + ' | ' + p)
     getPropertiesData = {"device_id": device_id, "p": p}
     session = retry_session(retries=5)
-    folderProperties = session.post(url='https://evsweb2652.idrive.com/evs/getProperties', data=getPropertiesData, headers=constant.HEADERS)
+    getPropertiesResponse = session.post(url='https://evsweb2652.idrive.com/evs/getProperties', data=getPropertiesData, headers=constant.HEADERS)
 
-    root = ET.fromstring(folderProperties.content)
-    return {'device_id': device_id, 
-            'path': root.get('path'), 
-            'size': int(root.get('size')), 
-            'filecount': int(root.get('filecount'))}
+    if getPropertiesResponse and getPropertiesResponse.status_code == 200: 
+        root = ET.fromstring(getPropertiesResponse.content)
+        return {'device_id': device_id, 
+                'path': root.get('path'), 
+                'size': int(root.get('size')), 
+                'filecount': int(root.get('filecount'))}
+    else:
+        raise SystemExit('ERROR: Response code:', getPropertiesResponse.status_code, getPropertiesResponse.text)
+
 
 def setDevicesRootPaths(rootpath):
     devices = getDBDevices()
