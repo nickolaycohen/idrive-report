@@ -28,6 +28,20 @@ set VS default Interpreter to system Python:
   
 - aws sso temporary credentials
   https://www.youtube.com/watch?v=_KhrGFV_Npw&t=151s
+  https://www.youtube.com/watch?v=YzNX_YZHPXk&ab_channel=RichDevelops
+
+- AWS Login
+  https://d-9067eed1af.awsapps.com/start/#
+  - https://d-9067eed1af.awsapps.com/start/#/?tab=accounts
+  - get env credential from AccessKeys link in AWS access portal page
+  - 
+  
+- aws commands:
+  Login using existing profile
+  > aws sso login --profile test
+
+  List lambdas
+  > aws lambda list-functions --region us-east-1 --query 'Functions[].FunctionName' --output text
 
 
 RUN:
