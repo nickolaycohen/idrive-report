@@ -1,3 +1,15 @@
 .DS_Store
 __pycache__/
 out/
+deployment/lambda.zip
+deployment/terraform.tfstate
+deployment/terraform.tfstate.backup
+deployment/.terraform.lock.hcl
+deployment/.terraform/
+src/idna*
+src/certifi*
+src/request*
+src/urllib*
+src/charset*
+src/bin
+assets.db

@@ -1,13 +1,15 @@
 from datetime import datetime
 import sys
 import xml.etree.ElementTree as ET
-from pkg.db import initDB, setDevices, setTag
-from pkg.idrive import getDevices, setDevicePaths, setDevicesRootPaths, getTop10Folders
 import json
-
-print('Loading Function')
-
-def lambda_handler(event, context):
+# import os
+# os.system("python ./src/db.py")
+##-- import initDB, setDevices, setTag
+from pkg.db import initDB, setDevices, setTag
+from pkg.idrive import getDevices, setDevicesRootPaths, getTop10Folders, setDevicePaths
+# os.system("python ./src/idrive.py")
+# 
+def main(): 
     # idrive-cleaner
 
     # init DB
@@ -18,7 +20,7 @@ def lambda_handler(event, context):
 
     # update DeviceList in DB
     setDevices(devices)
-
+    
     # process arguments
     argCount = len(sys.argv)
     arg = sys.argv
@@ -43,11 +45,11 @@ def lambda_handler(event, context):
     top10folders = getTop10Folders()
     print('top10folders:')
     print(top10folders)
-    print('type of top10folders:')
-    print(type(top10folders))
     print('json of top10folders:')
     print(json.dumps(top10folders))
     return top10folders
 
-    # print("value1 = " + event['key1'])
-    # return event['key1']
+if __name__ == "__main__": 
+  
+    # calling main function 
+    main() 

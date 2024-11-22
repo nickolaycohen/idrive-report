@@ -23,7 +23,7 @@ resource "aws_iam_role" "iam_for_lambda" {
 
 data "archive_file" "lambda" {
   type = "zip"
-  source_file = "${path.module}/../src/lambda.py"
+  source_dir = "${path.module}/../src"
   output_path = "lambda.zip"
 }
 
@@ -34,4 +34,5 @@ resource "aws_lambda_function" "lambda" {
   source_code_hash = data.archive_file.lambda.output_base64sha256
   runtime = "python3.10"
   handler = "lambda.lambda_handler"
+  timeout = 180
 }

@@ -43,6 +43,9 @@ set VS default Interpreter to system Python:
   List lambdas
   > aws lambda list-functions --region us-east-1 --query 'Functions[].FunctionName' --output text
 
+- create deployment package
+> cd src
+> pip install --target . requests
 
 RUN:
 ===
