@@ -13,3 +13,4 @@ src/urllib*
 src/charset*
 src/bin
 assets.db
+src/pkg/database.ini
