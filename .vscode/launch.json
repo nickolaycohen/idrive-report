@@ -1,28 +1,26 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-
-  // "args": ["D01563744743000489825", "//Users/nickolaycohen"]
-
-  // "args": ["D01692572940000295373", "//Volumes"]
-  // "args": ["R01563807439000950037", "//Videos", "MediaSource"]
-
-  // "args": [
-  //   "D01563711761000105006",
-  //   "//Users/nickolaycohen/Pictures/Benny iPhone Download 05292017.photoslibrary",
-  //   "Photos"]
-
-  // "args": ["D01563744743000489825", "//Videos", "MediaSource"]
-
   "version": "0.2.0",
   "configurations": [
+    {
+      "name": "Python Debugger: Current File with Arguments",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "args": [
+        "${command:pickArgs}"
+      ]
+    },
     {
       "name": "Python Debugger: Current File",
       "type": "debugpy",
       "request": "launch",
       "program": "${file}",
       "console": "integratedTerminal",
-    }
+      "args": [
+        "D01692572940000295373",
+        "//"
+      ]
+    },
   ]
 }

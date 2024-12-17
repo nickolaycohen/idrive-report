@@ -1,29 +1,49 @@
 # DB Calls
 import os
-import sqlite3
+import sqlite3, psycopg2
 import json
 
-from pkg.util import splitPath
+from .util import splitPath
+from .config import load_config
+
+def connect():
+    """ Connect to the PostgreSQL database server """
+    config = load_config()
+    try:
+        with psycopg2.connect(**config) as conn:
+            print('Connected to the PostgreSQL server.', )
+            return conn
+    except (psycopg2.DatabaseError, Exception) as error:
+        print(error)
 
 
 def setPath(path):
     device_id = path.get('device_id')
     name = path.get('name')
     type = path.get('type')
+    lmd = path.get('lmd')
     rootpath = path.get('rootpath')
-    conn = sqlite3.connect('assets.db')
-    c = conn.cursor()
-    c.execute("SELECT datetime(replace(lmd, '/', '-')) as 'lmd' from paths where deviceId=:device_id and name=:name and parentPath=:parentPath", {'device_id': device_id, 'name':name, 'parentPath': rootpath})
-    res = c.fetchall()
-    if len(res) == 0:
-        c.execute("INSERT INTO paths VALUES (null, :deviceId, :name, :type, :parentPath, :lmd, :size, :filecount, :drilledDown, :tag)", 
-                  {'deviceId': device_id, 'name': name, 'type': type, 'lmd': path.get('lmd'), 'parentPath': rootpath, 'size': 0, 'filecount': 0, 'drilledDown': False, 'tag': ''})
-    conn.commit()
-    conn.close()        
-    if len(res) == 0:
-        return None
-    else:
-        return res[0][0]
+    select_sql = """SELECT lmd from paths where device_id=%s and name=%s and parent_path=%s"""
+    insert_sql = """INSERT INTO paths(device_id,name,type,lmd,parent_path,size,file_count,drilled_down,tag) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                        
+    try:
+        conn = connect()
+        curr = conn.cursor()
+        curr.execute(select_sql, (device_id,name,rootpath))
+        res = curr.fetchall()
+        if len(res) == 0:
+            curr.execute(insert_sql, 
+                    (device_id, name, type, lmd, rootpath, 0, 0, False, '',))
+        conn.commit()
+        if len(res) == 0:
+            return None
+        else:
+            return res[0][0]
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        return 
 
 def setPathProperties(path):
     device_id = path.get('device_id')
@@ -33,12 +53,17 @@ def setPathProperties(path):
     parentPath, name = splitPath(path['path'])
     size = path.get('size')
     filecount = path.get('filecount')
-    conn = sqlite3.connect('assets.db')
+    conn = connect()
+    select_sql = """SELECT lmd from paths 
+                where device_id= %s and name = %s and parent_path = %s"""
+    update_sql = """UPDATE paths 
+                SET size = %s, file_count = %s WHERE device_id=%s and name = %s and parent_path=%s"""
+
     c = conn.cursor()
-    c.execute("SELECT datetime(replace(lmd, '/', '-')) as 'lmd' from paths where deviceId=:device_id and name=:name and parentPath=:parentPath", {'device_id': device_id, 'name': name, 'parentPath': parentPath})
+    c.execute(select_sql, (device_id, name, parentPath))
     res = c.fetchall()
     if len(res) == 1:
-        c.execute("UPDATE paths SET size = :size, filecount = :filecount WHERE deviceId=:device_id and name=:name and parentPath=:parentPath", {'device_id': device_id, 'name': name, 'parentPath': parentPath, 'size': size, 'filecount': filecount})
+        c.execute(update_sql, (size, filecount, device_id, name, parentPath, ))
     else:
         raise Exception("DB Update error")
     conn.commit()
@@ -53,12 +78,16 @@ def setTag(arg: list):
     device_id = arg[1]
     parentPath, name = splitPath(arg[2])
     tag = arg[3]
-    conn = sqlite3.connect('assets.db')
+    
+    conn = connect()
+    select_sql = "SELECT tag from paths where device_id=%sand name=%s and parent_path=%s"
+    update_sql = "UPDATE paths SET tag = %s WHERE device_id=%s and name=%s and parent_path=%s"
+
     c = conn.cursor()
-    c.execute("SELECT tag as 'tag' from paths where deviceId=:device_id and name=:name and parentPath=:parentPath", {'device_id': device_id, 'name': name, 'parentPath': parentPath})
+    c.execute(select_sql, (device_id, name, parentPath))
     res = c.fetchall()
     if len(res) == 1:
-        c.execute("UPDATE paths SET tag = :tag WHERE deviceId=:device_id and name=:name and parentPath=:parentPath", {'tag': tag, 'device_id': device_id, 'name': name, 'parentPath': parentPath})
+        c.execute(update_sql, (tag, device_id, name, parentPath))
     else:
         raise Exception("DB Update error")
     conn.commit()
@@ -69,23 +98,23 @@ def setTag(arg: list):
         return res[0][0]
 
 def setDevices(devices):
-    conn = sqlite3.connect('assets.db')
+    conn = connect()
     c = conn.cursor()
 
     for device in devices:
         # insert device if not exists
         device_id = device.get('device_id')
-
-        c.execute("SELECT count() from devices where deviceId=:device_id", {'device_id': device_id})
+        c.execute("""SELECT count(*) from devices where device_id = %s """, [device_id])
         res = c.fetchall()
         if (res[0][0]) == 0:
-            c.execute("INSERT INTO devices VALUES (:deviceId, :nickName)", {'deviceId': device_id, 'nickName': device.get('nick_name')})
+            print('will insert device_id:', device_id)
+            c.execute("""INSERT INTO devices VALUES (%s, %s)""", (device_id, device.get('nick_name')))
     conn.commit()
     conn.close()        
     return
 
 def getDBDevices():
-    conn = sqlite3.connect('assets.db')
+    conn = connect()
     c = conn.cursor()
 
     c.execute("SELECT * from devices ")
@@ -97,11 +126,16 @@ def getDBDevices():
 def getParentPath(path):
     device_id = path.get('device_id')
     name = path.get('name')
+    parent_path = path.get('parentPath')
 
-    conn = sqlite3.connect('assets.db')
+    sql = """SELECT parent_path as "parentPath" from paths 
+            where device_id= %s and name = %s and parent_path = %s"""
+
+    conn = connect()
+
     c = conn.cursor()
 
-    c.execute("SELECT parentPath as 'parentPath' from paths where deviceId=:device_id and name=:name and parentPath=:parentPath", {'device_id': device_id, 'name': name, 'parentPath': path.get('parentPath')})
+    c.execute(sql, (device_id, name, parent_path))
     res = c.fetchall()
     conn.commit()
     conn.close() 
@@ -111,9 +145,10 @@ def getParentPath(path):
         return res[0][0]
     
 def getDrilledDown(path, device_id):
-    conn = sqlite3.connect('assets.db')
+    conn = connect()
+    sql = """SELECT drilled_down as drilledDown from paths where device_id = %s and replace(parent_path || '/' || name,'///','//') = %s """
     c = conn.cursor()
-    c.execute("SELECT drilledDown as 'drilledDown' from paths where deviceId=:device_id and replace(parentPath || '/' || name,'///','//')=:name", {'device_id': device_id, 'name':path})
+    c.execute(sql, (device_id, path))
     res = c.fetchall()
     conn.commit()
     conn.close()        
@@ -123,12 +158,17 @@ def getDrilledDown(path, device_id):
         return res[0][0]
     
 def setDrilledDown(path, device_id):
-    conn = sqlite3.connect('assets.db')
+    # conn = sqlite3.connect('assets.db')
+    conn = connect()
+    select_sql = """SELECT drilled_down from paths where device_id=%s and replace(parent_path || '/' || name,'///','//')=%s"""
+    update_sql = """UPDATE paths SET drilled_down = true WHERE device_id=%s and replace(parent_path || '/' || name,'///','//')=%s"""
+
     c = conn.cursor()
-    c.execute("SELECT drilledDown as 'drilledDown' from paths where deviceId=:device_id and replace(parentPath || '/' || name,'///','//')=:name", {'device_id': device_id, 'name': path})
+    c.execute(select_sql, (device_id, path))
     res = c.fetchall()
+    print()
     if len(res) == 1:
-        c.execute("UPDATE paths SET drilledDown = true WHERE deviceId=:device_id and replace(parentPath || '/' || name,'///','//')=:name", {'device_id': device_id, 'name': path})
+        c.execute(update_sql, (device_id, path))
     else:
         raise Exception("DB Update error")
     conn.commit()
@@ -139,13 +179,10 @@ def setDrilledDown(path, device_id):
         return res[0][0]
 
 def getTop10Folders():
-    conn = sqlite3.connect('assets.db')
+    # conn = sqlite3.connect('assets.db')
     c = conn.cursor()
     c.execute("select  case when p.size / 1000000000000 > 0 then cast(p.size / 1000000000000 as string) || ' TB' when p.size / 1000000000 > 0 then cast(p.size / 1000000000 as string) || ' GB' when p.size / 1000000 > 0 then cast(p.size / 1000000 as string) || ' MB' when p.size / 1000 > 0 then cast(p.size / 1000 as string) || ' kB' else cast(p.size as string) || ' B' end as sizeB, p.deviceId, d.nickName, p.parentPath, p.name, p.size, p.fileCount from paths p inner join devices d on d.deviceId = p.deviceId where not p.drilledDown order by p.size desc limit 10")
     res = c.fetchall()
-    #print(type(res))
-    #print(res)
-    #json.dumps(res)
     conn.commit()
     conn.close() 
     if len(res) == 0:
@@ -155,27 +192,38 @@ def getTop10Folders():
 
 
 def initDB():
-    dbPath = './assets.db'
-    if not os.path.exists(dbPath):
-        conn = sqlite3.connect(dbPath)
-        c = conn.cursor()
+    # conn = psycopg2.connect(
+    #     host="localhost",
+    #     database="assets",
+    #     user="nickolaycohen",
+    #     password=""
+    # )
+    # print('in initDB')
+    conn = connect()
+    # dbPath = './assets.db'
+    # if not os.path.exists(dbPath):
+    c = conn.cursor()
 
-        c.execute("""CREATE TABLE devices (
-                deviceId text,
-                nickName text)
-                """)
-        c.execute("""CREATE TABLE paths (
-                id integer primary key,
-                deviceId text,  
-                name text,
-                type integer,
-                parentPath text,
-                lmd text,
-                size integer,
-                fileCount integer,
-                drilledDown boolean,
-                tag text)
-                """)
-        conn.commit()
-        conn.close()
+    c.execute("""CREATE TABLE IF NOT EXISTS devices (
+            device_id text,
+            nick_name text)
+            """)
+    c.execute("""CREATE TABLE IF NOT EXISTS paths (
+            id integer primary key,
+            device_id text,  
+            name text,
+            type integer,
+            parent_path text,
+            lmd text,
+            size integer,
+            file_count integer,
+            drilled_down boolean,
+            tag text)
+            """)
+    conn.commit()
+    conn.close()
 # END DB Calls
+
+# if __name__ == '__main__':
+    # config = load_config()
+    # connect(config)

@@ -31,6 +31,7 @@ def getDevices():
 
     print(statusMsg.CALLING_LIST_DEVICES+'')
     session = retry_session(retries=5)
+    
     listDevicesResponse = session.post(url='https://evsweb2652.idrive.com/evs/listDevices', headers=headers)
 
     if listDevicesResponse and listDevicesResponse.status_code == 200: 
@@ -42,6 +43,9 @@ def getDevices():
                 devices.append({"device_id": item.get('device_id'),
                                 "nick_name": item.get('nick_name')}) 
         return devices
+    elif listDevicesResponse.status_code == 403:
+        raise SystemExit('ERROR: API response is 403 - possible incorrect API token', listDevicesResponse.status_code, listDevicesResponse.text)
+
     else:
         raise SystemExit('ERROR: Response code:', listDevicesResponse.status_code, listDevicesResponse.text)
 
@@ -81,7 +85,6 @@ def setDevicePaths(rootpath, device):
     paths = folderRoot.findall('item')
 
     drilledDown = getDrilledDown(rootpath, device_id)
-    # print('drilledDown:', drilledDown)
     if drilledDown == 0:
         print('*** DB *** set path', rootpath, 'of drive: ', device_id, ' | ', nick_name, ' as drilledDown')
         setDrilledDown(rootpath, device_id)

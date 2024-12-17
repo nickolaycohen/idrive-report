@@ -2,13 +2,10 @@ from datetime import datetime
 import sys
 import xml.etree.ElementTree as ET
 import json
-# import os
-# os.system("python ./src/db.py")
-##-- import initDB, setDevices, setTag
+
 from pkg.db import initDB, setDevices, setTag
 from pkg.idrive import getDevices, setDevicesRootPaths, getTop10Folders, setDevicePaths
-# os.system("python ./src/idrive.py")
-# 
+
 def main(): 
     # idrive-cleaner
 
@@ -22,6 +19,7 @@ def main():
     setDevices(devices)
     
     # process arguments
+    # need to add handling of multiple API call types
     argCount = len(sys.argv)
     arg = sys.argv
     if (argCount > 1):
@@ -34,20 +32,22 @@ def main():
         # print('*** MAIN *** - NFO: device id {0} passed'.format(device['device_id']))
         else:
             setDevicePaths(rootPath,device)
-    # compare the deviceLists and 
+
+    # # compare the deviceLists and 
     # generate two lists for the tagged and untagged items
     ## print('Will generate two asset lists')
-    else:
-        setDevicesRootPaths("//")    
+    # else:
+    #     setDevicesRootPaths("//")    
 
     # return top 10 entries
-    print('Will call getTop10Folders')
-    top10folders = getTop10Folders()
-    print('top10folders:')
-    print(top10folders)
-    print('json of top10folders:')
-    print(json.dumps(top10folders))
-    return top10folders
+    # print('Will call getTop10Folders')
+    # top10folders = getTop10Folders()
+    # print('top10folders:')
+    # print(top10folders)
+    # print('json of top10folders:')
+    # print(json.dumps(top10folders))
+    # return top10folders
+    return
 
 if __name__ == "__main__": 
   

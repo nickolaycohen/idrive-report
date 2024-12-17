@@ -1,5 +1,5 @@
 #!/bin/bash          
-rm assets.db
+# rm assets.db
 
 # This is long running process
 # Commenting for now
@@ -14,13 +14,14 @@ python3 src/idrive-tagging.py D01692572940000295373 //Volumes/Extreme\ Pro
 python3 src/idrive-tagging.py D01692572940000295373 //Volumes/Extreme\ Pro/Photos\ Library
 
 # TODO - All-Media.photoslibrary to be tagged
-python3 src/idrive-tagging.py D01692572940000295373 //Volumes/Extreme\ Pro/Photos\ Library/All-Media.photoslibrary
+python3 src/idrive-tagging.py D01692572940000295373 //Volumes/Extreme\ Pro/Photos\ Library/All-Media.photoslibrary Current\ Photos\ Library
 
 # NickolaysMacBookPro
-# python3 idrive-tagging.py D01563711761000105006	//Users
-# python3 idrive-tagging.py D01563711761000105006	//Users/Shared
-# python3 idrive-tagging.py D01563711761000105006	//Users/nickolaycohen
-# python3 idrive-tagging.py D01563711761000105006	//Users/nickolaycohen/Pictures
+python3 src/idrive-tagging.py D01563711761000105006	//
+python3 src/idrive-tagging.py D01563711761000105006	//Users
+python3 src/idrive-tagging.py D01563711761000105006	//Users/Shared
+python3 src/idrive-tagging.py D01563711761000105006	//Users/nickolaycohen
+python3 src/idrive-tagging.py D01563711761000105006	//Users/nickolaycohen/Pictures
 
 # need to check this folder - maybe can delete from iDrive or extract of Mini, verify imported and then delete from service
 # python3 idrive-tagging.py D01563711761000105006	//Users/nickolaycohen/Pictures/LightRoom\ Catalog\ and\ Data
@@ -30,22 +31,26 @@ python3 src/idrive-tagging.py D01692572940000295373 //Volumes/Extreme\ Pro/Photo
 # python3 idrive-tagging.py D01563711761000105006	//Users/nickolaycohen/Pictures/Photos\ Library\ iPhone12\ 20230115.photoslibrary PhotosLibrary
 
 # NickolaysiMac
-# python3 idrive-tagging.py D01563744743000489825 //Users
-# python3 idrive-tagging.py D01563744743000489825	//Users/nickolaycohen
-# python3 idrive-tagging.py D01563744743000489825	//Users/nickolaycohen/Pictures
-# python3 idrive-tagging.py D01563744743000489825	//Users/nickolaycohen/Pictures/Pipeline
-# python3 idrive-tagging.py D01563744743000489825	//Users/nickolaycohen/Pictures/LightRoom\ Catalog\ and\ Data
+python3 src/idrive-tagging.py D01563744743000489825	//
+python3 src/idrive-tagging.py D01563744743000489825 //Users
+python3 src/idrive-tagging.py D01563744743000489825	//Users/nickolaycohen
+python3 src/idrive-tagging.py D01563744743000489825	//Users/nickolaycohen/Pictures
+python3 src/idrive-tagging.py D01563744743000489825	//Users/nickolaycohen/Pictures/Pipeline
+python3 src/idrive-tagging.py D01563744743000489825	//Users/nickolaycohen/Pictures/LightRoom\ Catalog\ and\ Data
+python3 src/idrive-tagging.py D01563744743000489825	//Users/nickolaycohen/Pictures/LightRoom\ Catalog\ and\ Data/LightRoom\ Imported\ Media
 # python3 idrive-tagging.py D01563744743000489825	//Users/nickolaycohen/Movies
 # python3 idrive-tagging.py D01563744743000489825	//Users/Shared
-# python3 idrive-tagging.py D01563744743000489825 //Archives
-# python3 idrive-tagging.py D01563744743000489825 //Pictures
+python3 src/idrive-tagging.py D01563744743000489825 //Archives
+python3 src/idrive-tagging.py D01563744743000489825 //Archives/Pictures
+python3 src/idrive-tagging.py D01563744743000489825 //Pictures
 # python3 idrive-tagging.py D01563744743000489825	//Pictures/Photos\ Library.photoslibrary PhotosLibrary
 
 # need to check this folder - maybe can delete from iDrive or extract of Mini, verify imported and then delete from service
 # python3 idrive-tagging.py D01563744743000489825 //Pictures/iPhoneXI-Photos-Export 
-# python3 idrive-tagging.py D01563744743000489825 //Volumes
-# python3 idrive-tagging.py D01563744743000489825 //Volumes/OneTouch\ 4
-# python3 idrive-tagging.py D01563744743000489825 //Volumes/OneTouch\ 4/NAI\ Portable\ HDD\ temp
+
+python3 src/idrive-tagging.py D01563744743000489825 //Volumes
+python3 src/idrive-tagging.py D01563744743000489825 //Volumes/OneTouch\ 4
+python3 src/idrive-tagging.py D01563744743000489825 //Volumes/OneTouch\ 4/NAI\ Portable\ HDD\ temp
 
 # ASUS
 # python3 idrive-tagging.py D01567232251000246054 //
