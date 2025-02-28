@@ -34,7 +34,7 @@ set VS default Interpreter to system Python:
   https://d-9067eed1af.awsapps.com/start/#
   - https://d-9067eed1af.awsapps.com/start/#/?tab=accounts
   - get env credential from AccessKeys link in AWS access portal page
-  - 
+  - add to the .aws/credential file
   
 - aws commands:
   Login using existing profile
