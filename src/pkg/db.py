@@ -140,7 +140,7 @@ def getParentPath(path):
     conn.commit()
     conn.close() 
     if len(res) == 0:
-        return None
+        return '//'
     else:
         return res[0][0]
     
@@ -209,13 +209,13 @@ def initDB():
             nick_name text)
             """)
     c.execute("""CREATE TABLE IF NOT EXISTS paths (
-            id integer primary key,
+            id serial primary key,
             device_id text,  
             name text,
             type integer,
             parent_path text,
             lmd text,
-            size integer,
+            size int8,
             file_count integer,
             drilled_down boolean,
             tag text)

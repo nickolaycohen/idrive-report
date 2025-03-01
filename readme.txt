@@ -17,6 +17,7 @@ set VS default Interpreter to system Python:
 - check if terraform is installed
   >terraform -version
 
+
 - if not installed download binary from:
   https://developer.hashicorp.com/terraform/install
   https://releases.hashicorp.com/terraform/1.9.3/terraform_1.9.3_darwin_amd64.zip
@@ -45,7 +46,13 @@ set VS default Interpreter to system Python:
 
 - create deployment package
 > cd src
-> pip install --target . requests
+> pip3 install --target . requests
+
+DATABASE SETUP:
+==============
+Bare postgres server:
+https://postgresapp.com/
+
 
 RUN:
 ===
