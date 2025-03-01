@@ -60,10 +60,6 @@ python3 src/idrive-tagging.py D01567232251000246054 //C/RAID2
 python3 src/idrive-tagging.py D01567232251000246054 //C/RAID2/RAID1
 
 # iPhone (5)
-python3 src/idrive-tagging.py R01563807439000950037 //
-python3 src/idrive-tagging.py R01563807439000950037 //Videos
-python3 src/idrive-tagging.py R01563807439000950037 //Videos/Recently\ Added
-
 # python3 idrive-tagging.py R01563807439000950037 //Videos MediaSource
 # python3 idrive-tagging.py R01563807439000950037 //Photos MediaSource
 
