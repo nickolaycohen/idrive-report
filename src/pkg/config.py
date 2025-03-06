@@ -7,6 +7,7 @@ def load_config(filename='database.ini', section='postgresql'):
     cwd = os.path.abspath(os.getcwd()).replace('\\','/')
     path = cwd+loc
     filename_ = path + filename
+    # print(filename_)
     parser.read(filename_)
     # print(parser.sections())
 
