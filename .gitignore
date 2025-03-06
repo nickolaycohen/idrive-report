@@ -14,3 +14,11 @@ src/charset*
 src/bin
 assets.db
 src/pkg/database.ini
+deployment/terraform-aws-postgres/.terraform.lock.hcl
+.gitignore
+deployment/terraform-aws-postgres/terraform.tfstate.backup
+deployment/terraform-aws-postgres/modules/rds/.terraform.lock.hcl
+deployment/terraform-aws-postgres/.terraform/modules/modules.json
+deployment/terraform-aws-postgres/.terraform
+deployment/terraform-aws-postgres/terraform.tfstate
+deployment/terraform-aws-postgres/modules/rds/.terraform/

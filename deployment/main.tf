@@ -56,10 +56,3 @@ resource "aws_lambda_function" "lambda" {
   handler = "lambda.lambda_handler"
   timeout = 180
 }
-
-module "rds" {
-  source        = "./modules/rds"
-  db_identifier = "free-tier-db"
-  db_username   = "adminuser"
-  db_password   = "mypassword123" # Change this & use AWS Secrets Manager in production
-}

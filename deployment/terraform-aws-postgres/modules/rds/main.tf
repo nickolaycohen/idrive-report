@@ -1,15 +1,5 @@
-resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
-}
-
-resource "aws_subnet" "subnet" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.1.0/24"
-  map_public_ip_on_launch = true
-}
-
 resource "aws_security_group" "postgres_sg" {
-  vpc_id = aws_vpc.main.id
+  vpc_id = "vpc-3623974d" #aws_vpc.main.id
   name   = "postgres_sg"
 
   ingress {
@@ -20,17 +10,43 @@ resource "aws_security_group" "postgres_sg" {
   }
 }
 
+data "aws_ssm_parameter" "db_username" {
+  name  = "/rds/postgres/username"
+  with_decryption = true
+}
+
+data "aws_ssm_parameter" "db_password" {
+  name  = "/rds/postgres/password"
+  with_decryption = true
+}
+
 resource "aws_db_instance" "postgres" {
   allocated_storage    = 20
   storage_type         = "gp2"
   engine              = "postgres"
-  engine_version      = "14.7"
+  engine_version      = "14.17"
   instance_class      = "db.t3.micro"
   identifier         = var.db_identifier
-  username          = var.db_username
-  password          = var.db_password
-  publicly_accessible = false
+  username          = data.aws_ssm_parameter.db_username.value
+  password          = data.aws_ssm_parameter.db_password.value
+  publicly_accessible = true
   skip_final_snapshot = true
   vpc_security_group_ids = [aws_security_group.postgres_sg.id]
-  db_subnet_group_name  = aws_subnet.subnet.id
 }
+
+
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = ["vpc-3623974d"]  #[aws_vpc.main.id]
+  }
+}
+
+resource "aws_db_subnet_group" "rds_subnet_group" {
+  name       = "rds-subnet-group"
+  subnet_ids = ["subnet-de0924f1","subnet-a57e5df8"]
+  tags = {
+    Name = "DBSubnetGroups"
+  }
+}
+

@@ -19,8 +19,11 @@ set VS default Interpreter to system Python:
 
 - if not installed download binary from:
   https://developer.hashicorp.com/terraform/install
-  https://releases.hashicorp.com/terraform/1.9.3/terraform_1.9.3_darwin_amd64.zip
-  > mv Downloads/terraform_1.9.3_darwin_amd64/terraform /Users/nickolaycohen/bin/
+  for MacOS:
+  https://developer.hashicorp.com/terraform/install#darwin
+  https://releases.hashicorp.com/terraform/1.11.0/terraform_1.11.0_darwin_arm64.zip
+  
+  > mv Downloads/terraform_*_darwin_amd64/terraform /Users/nickolaycohen/bin/
   >terraform -version
 
 - AWS CLI:

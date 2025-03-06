@@ -77,3 +77,38 @@ from paths;
 
 delete 
 from devices;
+
+-- iMac all not-drilled down and untagged paths by size
+SELECT        case 
+        when p.size / 1000000000000 > 0
+        then cast(p.size / 1000000000000 as varchar) || ' TB'
+        when p.size / 1000000000 > 0
+        then cast(p.size / 1000000000 as varchar) || ' GB'
+        when p.size / 1000000 > 0
+        then cast(p.size / 1000000 as varchar) || ' MB'
+        when p.size / 1000 > 0
+        then cast(p.size / 1000 as varchar) || ' kB'
+        else cast(p.size as varchar) || ' B'
+    end as sizeB, d.nick_name, p.name, p.parent_path
+from paths p
+join devices d on d.device_id = p.device_id
+where p.device_id = 'D01563744743000489825' and
+p.drilled_down = FALSE and p.tag = ''
+order by p.size desc
+
+-- iMac all top level folders 
+SELECT        case 
+        when p.size / 1000000000000 > 0
+        then cast(p.size / 1000000000000 as varchar) || ' TB'
+        when p.size / 1000000000 > 0
+        then cast(p.size / 1000000000 as varchar) || ' GB'
+        when p.size / 1000000 > 0
+        then cast(p.size / 1000000 as varchar) || ' MB'
+        when p.size / 1000 > 0
+        then cast(p.size / 1000 as varchar) || ' kB'
+        else cast(p.size as varchar) || ' B'
+    end as sizeB, d.nick_name, p.name, p.parent_path
+from paths p
+join devices d on d.device_id = p.device_id
+where p.device_id = 'D01563744743000489825' and p.parent_path = '//'
+order by p.size desc
